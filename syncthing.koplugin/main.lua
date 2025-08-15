@@ -105,7 +105,7 @@ function Syncthing:start(password)
         --UIManager:show(info)
         UIManager:show(Notification:new{
             text = "Syncthing started",
-            timeout = 10
+            timeout = 5
         })
     else
         local info = InfoMessage:new{
@@ -128,7 +128,7 @@ function Syncthing:stop()
     --})
     UIManager:show(Notification:new{
         text = "Syncthing stopped",
-        timeout = 10
+        timeout = 5
     })
 
     if self:isRunning() then
