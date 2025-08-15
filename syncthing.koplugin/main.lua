@@ -51,6 +51,9 @@ function Syncthing:init()
     self.syncthing_port = G_reader_settings:readSetting("syncthing_port") or "8384"
     self.ui.menu:registerToMainMenu(self)
     self:onDispatcherRegisterActions()
+    logger.dbg("[Syncthing] INIT CALLED, instance: " .. tostring(self))
+    self.last_checked_day = ""
+    self:dailySync()
 end
 
 function Syncthing:start(password)
@@ -641,6 +644,35 @@ function Syncthing:onStartSyncthingWlanTimed()
     end
 
     UIManager:scheduleIn(60, stopAll)
+end
+
+function Syncthing:dailySyncTimer()
+    if self.daily_timer_function == nil then
+        self.daily_timer_function = function()
+            self:dailySyncTimer()    
+        end
+    end
+    logger.info(string.format("[Syncthing] dailySyncTimer: self=%s", tostring(self)))
+    self:dailySync()
+    UIManager:unschedule(self.daily_timer_function)
+    UIManager:scheduleIn(600, self.daily_timer_function)
+end
+
+function Syncthing:dailySync()
+    local today = os.date("%Y-%m-%d")
+    logger.info(string.format("[Syncthing] dailySync: today=%s, last_checked_day=%s, self=%s", today, tostring(self.last_checked_day), tostring(self)))
+    if today ~= self.last_checked_day then
+        self.last_checked_day = today
+        logger.info("[Syncthing] Schedule sync")
+        UIManager:scheduleIn(5, function()
+            self:onStartSyncthingWlanTimed()
+        end)
+    end
+end
+
+function Syncthing:onResume()
+    logger.info(string.format("[Syncthing] onResume: self=%s", tostring(self)))
+    self:dailySync()
 end
 
 function Syncthing:onDispatcherRegisterActions()
