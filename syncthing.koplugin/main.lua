@@ -5,6 +5,7 @@ local InfoMessage = require("ui/widget/infomessage")  -- luacheck:ignore
 local QRMessage = require("ui/widget/qrmessage")
 local InputDialog = require("ui/widget/inputdialog")
 local UIManager = require("ui/uimanager")
+local Notification = require("ui/widget/notification")
 local NetworkMgr = require("ui/network/manager")
 local WidgetContainer = require("ui/widget/container/widgetcontainer")
 local ffiutil = require("ffi/util")
@@ -83,14 +84,18 @@ function Syncthing:start(password)
     end
     logger.dbg("[Syncthing] Launching Syncthing : ", cmd)
     if os.execute(cmd) == 0 then
-        local info = InfoMessage:new{
-                timeout = 10,
-                -- @translators: %1 is the Syncthing port, %2 is the network info.
-                text = T(_("Syncthing started.\n\nSyncthing port: %1\n%2"),
-                    self.syncthing_port,
-                    Device.retrieveNetworkInfo and Device:retrieveNetworkInfo() or _("Could not retrieve network info.")),
-        }
-        UIManager:show(info)
+        --local info = InfoMessage:new{
+        --        timeout = 3,
+        --        -- @translators: %1 is the Syncthing port, %2 is the network info.
+        --        text = T(_("Syncthing started.\n\nSyncthing port: %1\n%2"),
+        --            self.syncthing_port,
+        --            Device.retrieveNetworkInfo and Device:retrieveNetworkInfo() or _("Could not retrieve network info.")),
+        --}
+        --UIManager:show(info)
+        UIManager:show(Notification:new{
+            text = "Syncthing started",
+            timeout = 10
+        })
     else
         local info = InfoMessage:new{
                 icon = "notice-warning",
@@ -106,9 +111,13 @@ end
 
 function Syncthing:stop()
     os.execute("cat "..pid_path.." | xargs kill")
-    UIManager:show(InfoMessage:new {
-        text = T(_("Syncthing stopped.")),
-        timeout = 2,
+    --UIManager:show(InfoMessage:new {
+    --    text = T(_("Syncthing stopped.")),
+    --    timeout = 2,
+    --})
+    UIManager:show(Notification:new{
+        text = "Syncthing stopped",
+        timeout = 10
     })
 
     if self:isRunning() then
@@ -615,11 +624,6 @@ function Syncthing:onStartSyncthingWlanTimed()
         self:stop()
         NetworkMgr:turnOffWifi()
         logger.info("[Syncthing] Stopped automatically.")
-        local info = InfoMessage:new{
-            text = _("Syncthing wurde gestoppt."),
-            timeout = 3,
-        }
-        UIManager:show(info)
     end
 
     UIManager:scheduleIn(60, stopAll)
