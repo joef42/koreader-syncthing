@@ -628,13 +628,16 @@ end
 
 function Syncthing:onStartSyncthingWlanTimed()
     NetworkMgr:turnOnWifi()
+    if self:isRunning() then
+        self:stop()
+    end
     self:start()
     logger.info("[Syncthing] Started for 60s")
 
     local function stopAll()
         self:stop()
         NetworkMgr:turnOffWifi()
-        logger.info("[Syncthing] Stopped automatically.")
+        logger.info(string.format("[Syncthing] Stopped automatically.: self=%s", tostring(self)))
     end
 
     UIManager:scheduleIn(60, stopAll)
