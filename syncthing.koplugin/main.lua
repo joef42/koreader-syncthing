@@ -27,10 +27,21 @@ if not util.pathExists("dropbear") then
     return { disabled = true, }
 end
 
+local syncthing_instance = nil
+
 local Syncthing = WidgetContainer:extend{
     name = "Syncthing",
     is_doc_only = false,
 }
+
+function Syncthing:new(...) 
+    if syncthing_instance then
+        return syncthing_instance
+    end
+    local obj = WidgetContainer.new(self, ...)
+    syncthing_instance = obj
+    return obj
+end
 
 local pid_path = "/tmp/syncthing_koreader.pid"
 local config_path = "settings/syncthing/config.xml"
