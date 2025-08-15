@@ -5,9 +5,11 @@ local InfoMessage = require("ui/widget/infomessage")  -- luacheck:ignore
 local QRMessage = require("ui/widget/qrmessage")
 local InputDialog = require("ui/widget/inputdialog")
 local UIManager = require("ui/uimanager")
+local NetworkMgr = require("ui/network/manager")
 local WidgetContainer = require("ui/widget/container/widgetcontainer")
 local ffiutil = require("ffi/util")
 local logger = require("logger")
+local Document = require("document/document")
 local util = require("util")
 local _ = require("gettext")
 local http = require("socket.http")
@@ -604,8 +606,28 @@ function Syncthing:addToMainMenu(menu_items)
     }
 end
 
+function Syncthing:onStartSyncthingWlanTimed()
+    NetworkMgr:turnOnWifi()
+    self:start()
+    logger.info("[Syncthing] Started for 60s")
+
+    local function stopAll()
+        self:stop()
+        NetworkMgr:turnOffWifi()
+        logger.info("[Syncthing] Stopped automatically.")
+        local info = InfoMessage:new{
+            text = _("Syncthing wurde gestoppt."),
+            timeout = 3,
+        }
+        UIManager:show(info)
+    end
+
+    UIManager:scheduleIn(60, stopAll)
+end
+
 function Syncthing:onDispatcherRegisterActions()
     Dispatcher:registerAction("toggle_syncthing_server", { category = "none", event = "ToggleSyncthingServer", title = _("Toggle Syncthing"), general=true})
+    Dispatcher:registerAction("start_syncthing_wlan_timed", { category = "none", event = "StartSyncthingWlanTimed", title = _("Start Syncthing (1 min)"), general=true})
 end
 
 require("insert_menu")
