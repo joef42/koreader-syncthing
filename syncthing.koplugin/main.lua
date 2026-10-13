@@ -659,7 +659,9 @@ function Syncthing:dailySyncTimer()
 end
 
 function Syncthing:dailySync()
-    local today = os.date("%Y-%m-%d")
+    -- Compute the "sync day" as the date of 5 hours ago, so the day only
+    -- rolls over at 5:00 instead of midnight.
+    local today = os.date("%Y-%m-%d", os.time() - 5 * 3600)
     logger.info(string.format("[Syncthing] dailySync: today=%s, last_checked_day=%s, self=%s", today, tostring(self.last_checked_day), tostring(self)))
     if today ~= self.last_checked_day then
         self.last_checked_day = today
