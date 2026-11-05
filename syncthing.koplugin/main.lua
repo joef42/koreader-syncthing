@@ -684,7 +684,7 @@ end
 
 function Syncthing:onDispatcherRegisterActions()
     Dispatcher:registerAction("toggle_syncthing_server", { category = "none", event = "ToggleSyncthingServer", title = _("Toggle Syncthing"), general=true})
-    Dispatcher:registerAction("start_syncthing_wlan_timed", { category = "none", event = "StartSyncthingWlanTimed", title = _("Start Syncthing (1 min)"), general=true})
+    Dispatcher:registerAction("start_syncthing_wlan_timed", { category = "none", event = "StartSyncthingWlanTimed", title = _("Start Syncthing (3 min)"), general=true})
 end
 
 require("insert_menu")
