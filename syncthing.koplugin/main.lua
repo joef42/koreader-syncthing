@@ -52,7 +52,8 @@ function Syncthing:init()
     self.ui.menu:registerToMainMenu(self)
     self:onDispatcherRegisterActions()
     logger.dbg("[Syncthing] INIT CALLED, instance: " .. tostring(self))
-    self.last_checked_day = ""
+    -- Restore the last synced day so a restart doesn't trigger another sync
+    self.last_checked_day = G_reader_settings:readSetting("syncthing_last_sync_day") or ""
     self:dailySync()
 end
 
@@ -665,6 +666,10 @@ function Syncthing:dailySync()
     logger.info(string.format("[Syncthing] dailySync: today=%s, last_checked_day=%s, self=%s", today, tostring(self.last_checked_day), tostring(self)))
     if today ~= self.last_checked_day then
         self.last_checked_day = today
+        -- Persist immediately so an unexpected power loss doesn't re-trigger
+        -- the sync on the next start
+        G_reader_settings:saveSetting("syncthing_last_sync_day", today)
+        G_reader_settings:flush()
         logger.info("[Syncthing] Schedule sync")
         UIManager:scheduleIn(5, function()
             self:onStartSyncthingWlanTimed()
