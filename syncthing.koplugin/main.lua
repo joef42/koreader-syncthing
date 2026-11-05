@@ -636,7 +636,7 @@ function Syncthing:onStartSyncthingWlanTimed()
         self:stop()
     end
     self:start()
-    logger.info("[Syncthing] Started for 60s")
+    logger.info("[Syncthing] Started for 3m")
 
     local function stopAll()
         self:stop()
@@ -644,7 +644,7 @@ function Syncthing:onStartSyncthingWlanTimed()
         logger.info(string.format("[Syncthing] Stopped automatically.: self=%s", tostring(self)))
     end
 
-    UIManager:scheduleIn(60, stopAll)
+    UIManager:scheduleIn(180, stopAll)
 end
 
 function Syncthing:dailySyncTimer()
